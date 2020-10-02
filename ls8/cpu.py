@@ -2,12 +2,19 @@
 
 import sys
 
+LDI = 0b10000010
+PRN = 0b01000111
+HLT = 0b00000001
+
 class CPU:
     """Main CPU class."""
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.ram = [0] * 256
+        self.reg = [0] * 8
+        self.pc = 0
+        self.runnning = True
 
     def load(self):
         """Load a program into memory."""
@@ -30,6 +37,14 @@ class CPU:
             self.ram[address] = instruction
             address += 1
 
+    # accepts the address to read and return the value stored there.
+    def ram_read(self, index):
+        return self.ram[index]
+
+    # accepts a value to write, and the address to write it to
+    def ram_write(self, index, value):
+        self.ram[index] = value
+   
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -62,4 +77,22 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+
+
+        while self.runnning:
+            command = self.ram[self.pc]
+            operand_a = self.ram_read([self.pc + 1])
+            operand_b = self.ram_read([self.pc + 2])
+
+            if command == HLT:
+                self.runnning = False
+                self.pc += 1
+            elif command == PRN:
+                print(operand_a)
+                self.pc += 2
+            elif command == LDI:
+                self.reg[operand_a] = operand_b
+                self.pc += 3
+            else:
+                self.running = False
+                print(f"Bad input: {command}")
