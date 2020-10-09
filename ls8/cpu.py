@@ -6,6 +6,8 @@ LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
 MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
 
 class CPU:
     """Main CPU class."""
@@ -30,7 +32,7 @@ class CPU:
         try: 
             with open(sys.argv[1]) as f:
                 for line in f:
-                    line = line.splite('#')
+                    line = line.split("#")
                     line = line[0].strip()
 
                     if line == "":
@@ -127,8 +129,20 @@ class CPU:
                 self.pc += 3
             elif command == MUL:
                 print(self.reg[operand_a] * self.reg[operand_b])
-                self.reg[operand_a] *= self.reg[operand_b]
+                self.alu("MUL", operand_a, operand_b)
                 self.pc += 3
+            elif command == PUSH:
+                self.reg[7] -= 1
+                sp = self.reg[7]
+                value = self.reg[operand_a]
+                self.ram[sp] = value
+                self.pc += 2
+            elif command == POP:
+                sp = self.reg[7]
+                value = self.ram[sp]
+                self.reg[operand_a] = value
+                self.reg[7] += 1
+                self.pc += 2
             else:
                 self.running = False
                 print(f"Bad input: {command}")
